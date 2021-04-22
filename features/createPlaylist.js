@@ -4,11 +4,14 @@
  */
 const { SlackDialog } = require('botbuilder-adapter-slack');
 
-module.exports = function(controller) {
+module.exports = function (controller) {
 
-    controller.on('slash_command', async(bot, message) => {
+    controller.on('slash_command', async (bot, message) => {
         if (message.command === '/playlist') {
-            await bot.reply(message, 'So I will make a playlist called "' + message.text + '"');
+            if (message.text != "")
+                await bot.reply(message, 'So I will make a playlist called "' + message.text + '"');
+            else
+                bot.httpBody({ text: 'Tsk tsk, you need to provide a title for the playlist. (Maybe try reading the hints displayed next time)' });
         }
     });
 
