@@ -20,8 +20,6 @@ if (fs.existsSync(keyPath)) {
   keys = require(keyPath).web;
 }
 
-console.log(keys);
-
 /**
  * Create a new OAuth2 client with the configured keys.
  */
@@ -56,6 +54,7 @@ async function authenticate(scopes) {
             server.destroy();
             const {tokens} = await oauth2Client.getToken(qs.get('code'));
             oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
+            console.log("tokens received");
             resolve(oauth2Client);
           }
         } catch (e) {
@@ -64,57 +63,18 @@ async function authenticate(scopes) {
       })
       .listen(3030, () => {
         // open the browser to the authorize url to start the workflow
-        opn(authorizeUrl, {wait: false}).then(cp => cp.unref());
+        opn(authorizeUrl, {wait: true}).then(cp => cp.unref());
       });
     destroyer(server);
   });
 }
 
-async function runSample() {
-  // retrieve user profile
-  const res = await people.people.get({
-    resourceName: 'people/me',
-    personFields: 'emailAddresses',
-  });
-  console.log(res.data);
-}
+// const scopes = [
+//   'https://www.googleapis.com/auth/contacts.readonly',
+//   'https://www.googleapis.com/auth/user.emails.read',
+//   'profile',
+// ];
+// authenticate(scopes)
+//   .catch(console.error);
 
-const scopes = [
-  'https://www.googleapis.com/auth/contacts.readonly',
-  'https://www.googleapis.com/auth/user.emails.read',
-  'profile',
-];
-authenticate(scopes)
-  .then(client => runSample(client))
-  .catch(console.error);
-
-
-
-// const {google} = require('googleapis');
-
-// const youtube = google.youtube({
-//   version: 'v3',
-//   auth: process.env.GOOGLE_API_KEY
-// });
-
-// async function getPlaylistData(etag) {
-//     // Create custom HTTP headers for the request to enable use of eTags
-//     const headers = {};
-//     if (etag) {
-//       headers['If-None-Match'] = etag;
-//     }
-
-//     const channels = await youtube.channels.list({
-//         part='id',
-//         forUsername='brun07'
-//     })
-
-//     const res = await youtube.playlists.list({
-//       part: 'id,snippet,contentDetails',
-//       mine: true,
-//       headers: headers,
-//     });
-//     console.log('Status code: ' + res.status);
-//     console.log(res.data);
-//     return res;
-//   }
+module.exports = authenticate;

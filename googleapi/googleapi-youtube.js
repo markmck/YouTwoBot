@@ -13,20 +13,25 @@
 
 'use strict';
 
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const path = require('path');
-const {authenticate} = require('./googleapi-auth');
+const authenticate = require('./googleapi-auth');
 
 // initialize the Youtube API library
 const youtube = google.youtube('v3');
 
 // a very simple example of getting data from a playlist
 async function runSample() {
-  const auth = await authenticate({
-    keyfilePath: path.join(__dirname, '../oauth2.keys.json'),
-    scopes: ['https://www.googleapis.com/auth/youtube'],
-  });
-  google.options({auth});
+  
+  console.log("auth start");
+  const auth = await authenticate(
+    ['https://www.googleapis.com/auth/youtube']
+  );
+  google.options({ auth });
+
+  console.log("auth end");
+
+  console.log(google.options);
 
   // the first query will return data with an etag
   const res = await getPlaylistData(null);
