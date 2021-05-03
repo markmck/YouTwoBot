@@ -12,9 +12,9 @@ module.exports = function (controller) {
         if (message.command === '/playlist') {
             if (message.text != "")
             {
-                let response = await runSample();
-                console.log(response);
                 await bot.reply(message, 'So I will make a playlist called "' + message.text + '"');
+                let response = await createPlaylist();
+                console.log(response);
             }
             else
                 bot.httpBody({ text: 'Tsk tsk, you need to provide a title for the playlist. (Maybe try reading the hints displayed next time)' });

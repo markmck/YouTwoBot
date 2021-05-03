@@ -21,17 +21,16 @@ const authenticate = require('./googleapi-auth');
 const youtube = google.youtube('v3');
 
 // a very simple example of getting data from a playlist
-async function runSample() {
+async function createPlaylist() {
   
-  console.log("auth start");
+  console.log("before: " + google.options);
   const auth = await authenticate(
     ['https://www.googleapis.com/auth/youtube']
   );
   google.options({ auth });
 
-  console.log("auth end");
-
-  console.log(google.options);
+  console.log("after: " + google.options.auth);
+  console.log("auth.tokens" + google.options.auth.getTokenInfo)
 
   // the first query will return data with an etag
   const res = await getPlaylistData(null);
@@ -61,6 +60,6 @@ async function getPlaylistData(etag) {
 }
 
 if (module === require.main) {
-  runSample().catch(console.error);
+  createPlaylist().catch(console.error);
 }
-module.exports = runSample;
+module.exports = createPlaylist;

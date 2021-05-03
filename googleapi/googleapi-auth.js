@@ -54,7 +54,6 @@ async function authenticate(scopes) {
             server.destroy();
             const {tokens} = await oauth2Client.getToken(qs.get('code'));
             oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
-            console.log("tokens received");
             resolve(oauth2Client);
           }
         } catch (e) {
