@@ -17,23 +17,21 @@ const { google } = require('googleapis');
 const path = require('path');
 const authenticate = require('./googleapi-auth');
 
-// initialize the Youtube API library
-const youtube = google.youtube('v3');
-
 // a very simple example of getting data from a playlist
 async function createPlaylist() {
-  
-  console.log("before: " + google.options);
+
   const auth = await authenticate(
     ['https://www.googleapis.com/auth/youtube']
   );
-  google.options({ auth });
 
-  console.log("after: " + google.options.auth);
-  console.log("auth.tokens" + google.options.auth.getTokenInfo)
+  console.log("auth:" + auth);
+
+  google.options({ auth });
+  const youtube = google.youtube('v3');
+
 
   // the first query will return data with an etag
-  const res = await getPlaylistData(null);
+  const res = await getPlaylistData(null, youtube);
   const etag = res.data.etag;
   console.log(`etag: ${etag}`);
 
@@ -43,7 +41,7 @@ async function createPlaylist() {
   console.log(res2.status);
 }
 
-async function getPlaylistData(etag) {
+async function getPlaylistData(etag, youtube) {
   // Create custom HTTP headers for the request to enable use of eTags
   const headers = {};
   if (etag) {

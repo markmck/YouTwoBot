@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 const { SlackDialog } = require('botbuilder-adapter-slack');
-const runSample = require('../googleapi/googleapi-youtube');
+const createPlaylist = require('../googleapi/googleapi-youtube');
 const { run } = require('googleapis/build/src/apis/run');
 
 module.exports = function (controller) {

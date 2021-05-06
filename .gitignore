@@ -1,3 +1,4 @@
 .env
 node_modules/
 oauth2.keys.json
+token.json
