@@ -13,7 +13,7 @@ module.exports = function (controller) {
             if (message.text != "")
             {
                 await bot.reply(message, 'So I will make a playlist called "' + message.text + '"');
-                let response = createPlaylist();
+                let response = createPlaylist(message.text);
                 console.log(response);
             }
             else

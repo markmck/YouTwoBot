@@ -18,43 +18,45 @@ const path = require('path');
 const authenticate = require('./googleapi-auth');
 
 // a very simple example of getting data from a playlist
-function createPlaylist() {
+function createPlaylist(playlistTitle) {
 
   authenticate(
     ['https://www.googleapis.com/auth/youtube']
   ).then(async (authResult) => {
-    console.log("auth:" + JSON.stringify(authResult));
 
     google.options({ authResult });
     const youtube = google.youtube({ version: 'v3', auth: authResult, });
 
-
     // the first query will return data with an etag
-    const res = await getPlaylistData(null, youtube);
-    const etag = res.data.etag;
-    console.log(`etag: ${etag}`);
-
-    // the second query will (likely) return no data, and an HTTP 304
-    // since the If-None-Match header was set with a matching eTag
-    const res2 = await getPlaylistData(etag);
-    console.log(res2.status);
+    const res = await insertPlaylist(playlistTitle, youtube).then(function (response) {
+      // Handle the results here (response.result has the parsed body).
+      console.log("Response", response);
+    },
+      function (err) { console.error("Execute error", err); });
   });
 
 }
 
-async function getPlaylistData(etag, youtube) {
-  // Create custom HTTP headers for the request to enable use of eTags
-  const headers = {};
-  if (etag) {
-    headers['If-None-Match'] = etag;
-  }
-  const res = await youtube.playlists.list({
-    part: 'id,snippet',
-    mine: 'true'
-  });
-  console.log('Status code: ' + res.status);
-  console.log(res.data);
-  return res;
+async function insertPlaylist(title, youtube) {
+  return youtube.playlists.insert({
+    "part": [
+      "snippet,status"
+    ],
+    "resource": {
+      "snippet": {
+        "title": title,
+        "description": "This is a sample playlist description.",
+        "tags": [
+          "sample playlist",
+          "API call"
+        ],
+        "defaultLanguage": "en"
+      },
+      "status": {
+        "privacyStatus": "private"
+      }
+    }
+  })
 }
 
 if (module === require.main) {
