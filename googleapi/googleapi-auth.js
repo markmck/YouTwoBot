@@ -34,29 +34,26 @@ function authenticate(scopes) {
     keys.redirect_uris[0]
   );
 
-  //Check if we have previously stored a token.
-  fs.readFile(tokenPath, (err, token) => {
-    if (err || token.length === 0) return getNewToken(oauth2Client, scopes);
-    oauth2Client.credentials = JSON.parse(token);
-    console.log("token from file: " + token);
+  return new Promise((resolve, reject) => {
+    readExistingToken().then(authToken => {
+      oauth2Client.credentials = authToken;
+      resolve(oauth2Client);
+    }, function (err) {
+      getNewToken(oauth2Client, scopes).then((authResult) => { resolve(authResult); });
+    })
   });
-
-  console.log("creds:" + oauth2Client.credentials);
-  return oauth2Client;
-  // return new Promise((resolve, reject) => {
-  //   fs.readFile(tokenPath, (err, data) => {
-  //       if( err ) {
-  //           getNewToken(oauth2Client, scopes)
-  //           //reject(err);
-  //           return;
-  //       }
-  //       oauth2Client.credentials = JSON.parse(token);
-  //       //resolve((!ignoreWhitespace && data.length == 0) || (ignoreWhitespace && !!String(data).match(/^\s*$/)))
-  //   });
-  // });
 }
 
-async function getNewToken(oauth2Client, scopes) {
+function readExistingToken() {
+  return new Promise((resolve, reject) =>
+    fs.readFile(tokenPath, (err, tokenData) => {
+      //if has error reject, otherwise resolve
+      return err || tokenData.length === 0 ? reject(err) : resolve(JSON.parse(tokenData));
+    })
+  );
+}
+
+function getNewToken(oauth2Client, scopes) {
   return new Promise((resolve, reject) => {
     // grab the url that will be used for authorization
     const authorizeUrl = oauth2Client.generateAuthUrl({
@@ -74,7 +71,7 @@ async function getNewToken(oauth2Client, scopes) {
             server.destroy();
             const { tokens } = await oauth2Client.getToken(qs.get('code'));
             oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
-            
+
             console.log("token from oauth:" + JSON.stringify(tokens));
 
             fs.writeFile(tokenPath, JSON.stringify(tokens), (err) => {

@@ -18,27 +18,28 @@ const path = require('path');
 const authenticate = require('./googleapi-auth');
 
 // a very simple example of getting data from a playlist
-async function createPlaylist() {
+function createPlaylist() {
 
-  const auth = await authenticate(
+  authenticate(
     ['https://www.googleapis.com/auth/youtube']
-  );
+  ).then(async (authResult) => {
+    console.log("auth:" + authResult);
 
-  console.log("auth:" + auth);
-
-  google.options({ auth });
-  const youtube = google.youtube('v3');
+    google.options({ authResult });
+    const youtube = google.youtube('v3');
 
 
-  // the first query will return data with an etag
-  const res = await getPlaylistData(null, youtube);
-  const etag = res.data.etag;
-  console.log(`etag: ${etag}`);
+    // the first query will return data with an etag
+    const res = await getPlaylistData(null, youtube);
+    const etag = res.data.etag;
+    console.log(`etag: ${etag}`);
 
-  // the second query will (likely) return no data, and an HTTP 304
-  // since the If-None-Match header was set with a matching eTag
-  const res2 = await getPlaylistData(etag);
-  console.log(res2.status);
+    // the second query will (likely) return no data, and an HTTP 304
+    // since the If-None-Match header was set with a matching eTag
+    const res2 = await getPlaylistData(etag);
+    console.log(res2.status);
+  });
+
 }
 
 async function getPlaylistData(etag, youtube) {
