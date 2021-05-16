@@ -23,10 +23,10 @@ function createPlaylist() {
   authenticate(
     ['https://www.googleapis.com/auth/youtube']
   ).then(async (authResult) => {
-    console.log("auth:" + authResult);
+    console.log("auth:" + JSON.stringify(authResult));
 
     google.options({ authResult });
-    const youtube = google.youtube('v3');
+    const youtube = google.youtube({ version: 'v3', auth: authResult, });
 
 
     // the first query will return data with an etag
@@ -50,8 +50,7 @@ async function getPlaylistData(etag, youtube) {
   }
   const res = await youtube.playlists.list({
     part: 'id,snippet',
-    id: 'PLIivdWyY5sqIij_cgINUHZDMnGjVx3rxi',
-    headers: headers,
+    mine: 'true'
   });
   console.log('Status code: ' + res.status);
   console.log(res.data);
